@@ -26,15 +26,18 @@ model relations =
 process : List ( comparable, comparable ) -> Set.Set comparable
 process relations =
     findCentralNode relations
-        |> (\_ -> Set.empty)
+        |> Maybe.map processFromCentralNode
+        |> Maybe.withDefault Set.empty
 
 
-findCentralNode : List ( comparable, comparable ) -> List ( comparable, Int )
+findCentralNode : List ( comparable, comparable ) -> Maybe comparable
 findCentralNode relations =
     relations
         |> List.foldl countOccurrences Dict.empty
         |> Dict.toList
         |> List.sortWith sortByOccurrence
+        |> List.head
+        |> Maybe.map fst
 
 
 countOccurrences : ( comparable, comparable ) -> Dict.Dict comparable Int -> Dict.Dict comparable Int
@@ -63,6 +66,11 @@ sortByOccurrence ( _, a ) ( _, b ) =
 
         GT ->
             LT
+
+
+processFromCentralNode : comparable -> Set.Set comparable
+processFromCentralNode node =
+    Set.singleton node
 
 
 
