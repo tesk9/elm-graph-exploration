@@ -25,13 +25,16 @@ model relations =
 
 process : List ( comparable, comparable ) -> Set.Set comparable
 process relations =
-    findDisconnectedCentralNodes relations
+    findCentralNode relations
         |> (\_ -> Set.empty)
 
 
-findDisconnectedCentralNodes : List ( comparable, comparable ) -> Dict.Dict comparable Int
-findDisconnectedCentralNodes relations =
-    List.foldl countOccurrences Dict.empty relations
+findCentralNode : List ( comparable, comparable ) -> List ( comparable, Int )
+findCentralNode relations =
+    relations
+        |> List.foldl countOccurrences Dict.empty
+        |> Dict.toList
+        |> List.sortWith sortByOccurrence
 
 
 countOccurrences : ( comparable, comparable ) -> Dict.Dict comparable Int -> Dict.Dict comparable Int
@@ -47,6 +50,19 @@ countOccurrence item dict =
         |> Maybe.withDefault 0
         |> \occurrence ->
             Dict.insert item (occurrence + 1) dict
+
+
+sortByOccurrence : ( a, Int ) -> ( a, Int ) -> Order
+sortByOccurrence ( _, a ) ( _, b ) =
+    case compare a b of
+        LT ->
+            GT
+
+        EQ ->
+            EQ
+
+        GT ->
+            LT
 
 
 
